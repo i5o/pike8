@@ -1,0 +1,10 @@
+AC_INIT(image_gif.c)
+AC_CONFIG_HEADER(config.h)
+AC_ARG_WITH(gif,     [  --with(out)-gif       Support GIF (Image.GIF)],[],[with_gif=yes])
+AC_MODULE_INIT()
+
+if test x$with_gif = xyes ; then
+  AC_DEFINE(WITH_GIF)
+fi
+
+AC_OUTPUT(Makefile,echo FOO >stamp-h )

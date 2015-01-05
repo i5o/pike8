@@ -1,0 +1,12 @@
+# by Francesco Chemolli <kinkie@roxen.com>
+
+@make_variables@
+
+VPATH=@srcdir@
+MODULE_LDFLAGS=@LDFLAGS@ @LIBS@
+OBJS=sybase.o
+
+CONFIG_HEADERS=@CONFIG_HEADERS@
+
+@dynamic_module_makefile@
+@dependencies@

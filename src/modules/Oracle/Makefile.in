@@ -1,0 +1,9 @@
+@make_variables@
+VPATH=@srcdir@
+OBJS=oracle.o
+MODULE_LDFLAGS=@LDFLAGS@ @ORACLE_LIBS@
+
+CONFIG_HEADERS=@CONFIG_HEADERS@
+
+@dynamic_module_makefile@
+@dependencies@

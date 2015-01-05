@@ -1,0 +1,6 @@
+/* -*- C -*- */
+require gnomecanvas;
+
+class Gnome2.CanvasBpath;
+//!
+inherit Gnome2.CanvasShape;

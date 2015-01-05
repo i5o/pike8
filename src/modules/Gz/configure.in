@@ -1,0 +1,57 @@
+AC_INIT(zlibmod.c)
+AC_CONFIG_HEADER(zlib_machine.h)
+AC_ARG_WITH(zlib,     [  --with(out)-zlib       Support gzip compression],[],[with_zlib=yes])
+
+AC_MODULE_INIT()
+
+PIKE_FEATURE_WITHOUT(Gz)
+
+define([AC_CHECK_GZ],
+[
+  AC_CHECK_LIB($1, deflateSetDictionary)
+
+  if test "x$ac_cv_lib_$1_deflateSetDictionary" = xyes; then
+    PIKE_FEATURE(Gz,[yes (lib$1)])
+    AC_DEFINE(HAVE_LIBZ)
+    LIBS="${LIBS-} -l$1"
+  else
+    $2
+  fi
+])
+
+if test x$with_zlib = xyes ; then
+  PIKE_FEATURE_NODEP(Gz)
+  AC_CHECK_HEADERS(zlib.h)
+  if test $ac_cv_header_zlib_h = yes ; then
+    AC_MSG_CHECKING([if zlib.h is new enough])
+    AC_TRY_LINK([
+#include <zlib.h>
+    ],[
+int foo = (int)(Z_NO_COMPRESSION | Z_VERSION_ERROR);
+    ],[ AC_MSG_RESULT(yes) ],[ AC_MSG_RESULT(no); ac_cv_header_zlib_h=no ])
+
+    PIKE_FEATURE(Gz,[no (zlib is too old)])
+    if test $ac_cv_header_zlib_h = yes ; then
+      if test x$pike_cv_sys_os = xIRIX ; then
+        # The libz.so supplied with IRIX 6.3 needs these obscure symbols
+        # C++? It also differs which library which contains them.
+        AC_CHECK_LIB(Csup, __vtbl__9type_info)
+	if test "$ac_cv_lib_Csup___vtbl__9type_info" = "yes" ; then :; else
+          AC_CHECK_LIB(C, __vtbl__9type_info)
+	fi
+	AC_CHECK_LIB(Csup, __T_9__nothrow)
+	AC_HAVE_FUNCS(__vtbl__9type_info)
+	AC_HAVE_FUNCS(__T_9__nothrow)
+      fi
+
+      AC_CHECK_GZ(z,[
+	AC_CHECK_GZ(gz,[
+	  # The lib is called zlib.lib in GnuWin32.
+	  AC_CHECK_GZ(zlib, [ ac_cv_lib_z_main=no ] ) ])])
+    fi
+  fi
+fi
+
+AC_OUTPUT(Makefile,echo FOO >stamp-h )
+
+

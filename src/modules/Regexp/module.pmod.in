@@ -1,0 +1,110 @@
+// -*- Pike -*-
+
+#pike __REAL_VERSION__
+#include <regexp.h>
+
+#if constant(_Regexp_PCRE._pcre)
+final constant PCRE=_Regexp_PCRE; // Regexp.PCRE
+#endif
+
+inherit @module@;
+
+//!
+class SimpleRegexp
+{
+  inherit _SimpleRegexp; // Most autodoc in here.
+
+  protected private object repreg;
+  protected private string regexp_string;
+
+  // Semi-optimal speed, yes, I agree, but it should work.
+  //!
+  string replace(string in, string|function(string:string) transform)
+  {
+    if(!repreg)
+      repreg = this_program("("+regexp_string+")");
+
+    for(string result = ""; ; )
+    {
+      if(!sizeof(in))
+	return result;
+
+      array a = repreg->split(in);
+       
+      if(!a)
+	return result + in;
+
+      int i = search(in, a[0]);
+
+      if(i == -1)
+	error("Split resulted in unknown substring %O of %O.", a[0], in);
+       
+      result += in[..i-1]+(functionp(transform)?transform(a[0]):transform);
+      in = in[i+sizeof(a[0])..];
+    }
+  }
+  
+  protected void create(string|void _regexp_string)
+  {
+    regexp_string = _regexp_string;
+  
+    if(regexp_string)
+      ::create(regexp_string);
+    else
+      ::create();
+  }
+
+  protected string _sprintf(int t)
+  {
+    switch(t)
+    {
+      case 'O':
+	return sprintf("%O(%s)", this_program, regexp_string||"");
+
+      case 's':
+	return regexp_string;
+    }
+    return 0;
+  }
+
+  //! Regexp objects can be encoded and decoded.
+  //! @seealso
+  //!   @[encode_value], @[decode_value]
+  mixed _encode() { return regexp_string; }
+  mixed _decode(string s) { create(s); }
+}
+
+//! Convenience/compatibility method to get a @[SimpleRegexp] object.
+SimpleRegexp `()(void|string regexp) { return SimpleRegexp(regexp); }
+
+
+#if constant(_Regexp_PCRE._pcre)
+
+// ****************************************************************
+
+//! Calls @[Regexp.PCRE.Plain.match] in a temporary regexp object.
+//! Faster to type but slower to run...
+int(0..1) match(string regexp, string data) {
+  return QUICK(regexp)->match(data);
+}
+
+//! Calls @[Regexp.PCRE.Plain.split] in a temporary regexp object.
+//! Faster to type but slower to run...
+array split(string regexp, string data) {
+  return QUICK(regexp)->split(data);
+}
+
+//! Calls @[Regexp.PCRE.Plain.split2] in a temporary regexp object.
+//! Faster to type but slower to run...
+array split2(string regexp, string data) {
+  return QUICK(regexp)->split2(data);
+}
+
+//! Calls @[Regexp.PCRE.Plain.replace] in a temporary regexp object.
+//! Faster to type but slower to run...
+string replace(string regexp, string data,
+	       string|function(string:string) transform) {
+  return QUICK(regexp)->replace(data, transform);
+}
+
+#endif

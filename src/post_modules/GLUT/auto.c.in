@@ -1,0 +1,52 @@
+/* -*- c -*-
+|| This file is part of Pike. For copyright information see COPYRIGHT.
+|| Pike is distributed under GPL, LGPL and MPL. See the file COPYING
+|| for more information.
+*/
+
+#include "global.h"
+
+#include "config.h"
+
+#include "stralloc.h"
+#include "pike_macros.h"
+#include "object.h"
+#include "program.h"
+#include "interpret.h"
+#include "builtin_functions.h"
+#include "pike_error.h"
+#include "module_support.h"
+#include "operators.h"
+
+#define GLUT_API_VERSION 4
+
+#ifdef HAVE_GL_GLUT_H
+#include <GL/glut.h>
+#endif
+#ifdef HAVE_GLUT_GLUT_H
+#include <GLUT/glut.h>
+#endif
+
+
+static void pre_init(void)
+{
+}
+
+static void f_glutInit(INT32 args)
+{
+  int argc = 1;
+  char * ARGV[] = { "glut" };
+  glutInit(&argc,ARGV);
+  pop_n_elems(args);
+}
+
+static void post_init(void)
+{
+  add_function_constant("glutInit", f_glutInit,
+			"function(void:void)", OPT_SIDE_EFFECT);
+}
+
+
+
+
+@@

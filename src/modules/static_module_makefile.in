@@ -1,0 +1,72 @@
+
+UNIQUE_MODNAME=$(MODNAME)
+
+LINKAGE_CPPFLAGS=-Dpike_module_init=pike_module_$(UNIQUE_MODNAME)_init -Dpike_module_exit=pike_module_$(UNIQUE_MODNAME)_exit
+LINKAGE_CFLAGS=
+
+MODULE_PROGRAM=$(MODPATH)$(MODULE_WRAPPER_PREFIX)$(MODNAME)
+MODULE_TARGET=module.a
+
+# The reason for this is that we can't use targets directly to specify
+# the build type; many module makefiles depend on being able to
+# override the default target.
+all:
+	@case "x$$MODULE_BUILD_TYPE" in \
+	  xstatic) $(MAKE) $(MAKE_FLAGS) static;; \
+	  xdynamic) ;; \
+	  x) $(MAKE) $(MAKE_FLAGS) static;; \
+	  *) \
+	    echo "Invalid MODULE_BUILD_TYPE: $$MODULE_BUILD_TYPE" >&2; \
+	    exit 1;; \
+	esac
+
+@common_module_makefile@
+
+build_type: Makefile
+	@echo static > build_type
+
+static: Makefile $(DUMMY) module-preamble module-main
+	@:
+
+dynamic:
+	@:
+
+linker_options: Makefile $(MODULE_ARCHIVES)
+	@linkopts="`pwd`/module.a `echo '$(MODULE_LDFLAGS)' | sed -e 's@$(BASE_LDFLAGS)@@'`"; \
+	for a in '' $(MODULE_ARCHIVES) ; do \
+	  if test "x$$a" = "x"; then :; else \
+	    case "$$a" in \
+	      /*) \
+		linkopts="$$linkopts $$a" \
+	      ;; \
+	      *) \
+		linkopts="$$linkopts `pwd`/$$a" \
+	      ;; \
+	    esac; \
+	  fi; \
+	done; \
+	echo "echo $$linkopts > linker_options"; \
+	echo $$linkopts > linker_options
+
+modlist_segment: Makefile
+	@echo >modlist_segment " ,{ \"$(MODULE_PROGRAM)\", pike_module_$(UNIQUE_MODNAME)_init, pike_module_$(UNIQUE_MODNAME)_exit, 0 } "
+
+
+# Can't depend on $(SRC_DIR)/$(CONFIG_HEADERS).in since
+# $(CONFIG_HEADERS) isn't always used.
+Makefile: $(MODULE_BASE)/static_module_makefile $(SRCDIR)/Makefile.in $(SRCDIR)/dependencies make_variables config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS="$(CONFIG_HEADERS)" ./config.status
+	touch remake
+	@echo "Run make again" >&2
+	@exit 1
+
+module.a: $(OBJS)
+	-rm -f module.a
+	$(AR) cq module.a $(OBJS)
+	-@RANLIB@ module.a
+	if test -f linker_options ; then touch linker_options ; else :; fi
+
+$(OBJS): propagated_variables
+
+install: $(MODULE_INSTALL)
+

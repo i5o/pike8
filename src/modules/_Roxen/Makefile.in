@@ -1,0 +1,10 @@
+@make_variables@
+VPATH=@srcdir@
+OBJS=roxen.o
+MODULE_LDFLAGS=@LDFLAGS@
+#  streamed_parser.o
+
+CONFIG_HEADERS=@CONFIG_HEADERS@
+
+@dynamic_module_makefile@
+@dependencies@

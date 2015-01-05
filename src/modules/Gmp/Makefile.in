@@ -1,0 +1,19 @@
+@make_variables@
+VPATH=@srcdir@
+MODULE_LDFLAGS=@LDFLAGS@ @LIBS@
+OBJS=mpz_glue.o mpq.o mpf.o smpz.o
+
+CONFIG_HEADERS=@CONFIG_HEADERS@
+
+# Reset the symbol prefix base to the empty string.
+PRECOMPILER_ARGS="--base="
+
+@static_module_makefile@
+
+# UnixWare make needs help to find the source file...
+mpq.o: $(SRCDIR)/mpq.c
+
+# UnixWare make needs help to find the source file...
+mpf.o: $(SRCDIR)/mpf.c
+
+@dependencies@

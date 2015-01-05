@@ -1,0 +1,12 @@
+AC_INIT(pnm.c)
+
+AC_SET_MAKE
+
+AC_MODULE_INIT()
+
+AC_PROG_RANLIB
+AC_SUBST(RANLIB)
+
+AC_OUTPUT(Makefile,echo FOO >stamp-h )
+
+

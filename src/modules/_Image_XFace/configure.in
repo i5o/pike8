@@ -1,0 +1,11 @@
+AC_INIT(image_xface.c)
+AC_CONFIG_HEADER(config.h)
+
+AC_MODULE_INIT()
+
+dnl GMP is required and tested for in Gmp module. We just want LIBS
+dnl updated here.
+AC_CHECK_LIB(gmp, main)
+
+AC_OUTPUT(Makefile,echo FOO >stamp-h )
+

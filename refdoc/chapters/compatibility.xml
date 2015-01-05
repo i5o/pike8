@@ -1,0 +1,105 @@
+<chapter title="Backward Compatibility">
+
+<p>Pike is a language under active development. This can lead to
+   incompatibilities between different versions of Pike. To alleviate
+   this problem Pike has a backward compatibility layer.</p>
+
+<p>The backward compatibility layer can be engaged in two ways;
+   either by starting the Pike interpreter with the <tt>-V</tt> option,
+   or by using the <tt>#pike</tt> preprocessor directive.</p>
+
+<p>The backward compatibility layer affects both the compiler and the
+   available modules.</p>
+
+<p>Note that the backward compatibility layer does not necessarily
+   compensate for all incompatibilities documented here, and that
+   there may be other incompatibilities that have not been documented.</p>
+
+<p>The remainder of this chapter describes the main incompatibilities
+   between the various versions of Pike and the current version.</p>
+
+<section title="Pike 8.0">
+  <subsection title="Global Functions">
+  </subsection>
+  <subsection title="Modules">
+    <p>The following modules and functions have moved, been renamed or
+      been deleted:
+      <matrix>
+      </matrix>
+    </p>
+  </subsection>
+  <subsection title="Compiler">
+  </subsection>
+  <subsection title="Runtime">
+  </subsection>
+</section>
+
+<section title="Pike 7.8">
+  <subsection title="Global Functions">
+    <p><ref>decode_value()</ref> used to be able to decode programs using
+       the 'old style' program encoding.</p>
+  </subsection>
+  <subsection title="Modules">
+    <p>The SSL module API has had major changes since Pike 7.8.</p>
+    <p>The following modules and functions have moved, been renamed or
+       been deleted:
+      <matrix>
+        <r><c><ref>7.8::Gdbm.gdbm</ref></c>
+           <c><ref>Gdbm.DB</ref></c></r>
+        <r><c><ref>7.8::Locale.Charset</ref></c>
+           <c><ref>Charset</ref></c></r>
+        <r><c><ref>7.8::SSL.alert</ref></c>
+           <c><ref>SSL.Alert</ref></c></r>
+        <r><c><ref>7.8::SSL.connection</ref> +
+              <ref>7.8::SSL.handshake</ref></c>
+           <c><ref>SSL.ClientConnection</ref> +
+              <ref>SSL.ServerConnection</ref></c></r>
+        <r><c><ref>7.8::SSL.context</ref></c>
+           <c><ref>SSL.Context</ref></c></r>
+        <r><c><ref>7.8::SSL.packet</ref></c>
+           <c><ref>SSL.Packet</ref></c></r>
+        <r><c><ref>7.8::SSL.session</ref></c>
+           <c><ref>SSL.Session</ref></c></r>
+        <r><c><ref>7.8::SSL.sslfile</ref></c>
+           <c><ref>SSL.File</ref></c></r>
+        <r><c><ref>7.8::SSL.sslport</ref></c>
+           <c><ref>SSL.Port</ref></c></r>
+        <r><c><ref>7.8::SSL.state</ref></c>
+           <c><ref>SSL.State</ref></c></r>
+        <r><c><ref>7.8::Tools.PEM</ref></c>
+           <c><ref>Standards.PEM</ref></c></r>
+        <r><c><ref>7.8::Tools.X509</ref></c>
+           <c><ref>Standards.X509</ref></c></r>
+        <r><c><ref>7.8::Yabu.db</ref></c>
+           <c><ref>Yabu.DB</ref></c></r>
+        <r><c><ref>7.8::Yabu.table</ref></c>
+           <c><ref>Yabu.Table</ref></c></r>
+        <r><c><ref>7.8::_PGsql</ref></c>
+           <c>(deleted></c></r>
+        <r><c><ref>7.8:_files</ref></c>
+           <c><ref>_Stdio</ref></c></r>
+      </matrix>
+    </p>
+  </subsection>
+  <subsection title="Compiler">
+    <p>The compiler used to not complain about use of
+       the keyword <tt>static</tt>.</p>
+    <p>The ancient syntax for arrays (<tt>string *</tt> was an alias for
+       <tt>array(string)</tt>) used to be supported (but complained about),
+       but has now been removed completely.</p>
+  </subsection>
+  <subsection title="Build options">
+    <p>The builtin security sandbox has been deprecated.</p>
+    <p>Compiling without support for bignums is no longer supported.</p>
+    <p>The (optional) support for facet classes has been removed.</p>
+  </subsection>
+</section>
+
+<section title="Pike 7.6 and earlier">
+  <subsection title="Deprecated">
+    <p>The backward compatibility code for Pike 7.6 and earlier
+       has been removed in Pike 8.2.</p>
+  </subsection>
+</section>
+
+</chapter>

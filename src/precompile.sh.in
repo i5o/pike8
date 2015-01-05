@@ -1,0 +1,153 @@
+#!/bin/sh
+
+#set -x
+if [ x"$1" = x--cache ]; then
+  shift 1
+fi
+
+exec 5>&1 1>&2
+
+TMP_BUILDDIR="@BUILDDIR@"
+TMP_BINDIR="@BINDIR@"
+LIBDIR_SRC="@LIBDIR@"
+SRCDIR="@srcdir@"
+
+export TMP_BUILDDIR
+export LIBDIR_SRC
+export TMP_BUILDDIR
+export SRCDIR
+
+retries=.
+
+if test "@CROSS@" = "yes"; then
+  method="QQQQQ"
+  retries="....."
+else :; fi
+
+OLD_RUNPIKE="$RUNPIKE"
+
+SCRIPT="$1"
+shift 1
+
+case "$SCRIPT" in
+  /*|./*)
+    if test -f "$SCRIPT"; then :; else
+      echo "Script $SCRIPT not found."
+      exit 1
+    fi
+  ;;
+  *)
+    if test -f ./$SCRIPT ; then
+      :
+    elif test -f "$TMP_BINDIR/$SCRIPT"; then
+      SCRIPT="$TMP_BINDIR/$SCRIPT"
+    else
+      echo "Script $SCRIPT neither found in the current directory nor in $TMP_BINDIR."
+      exit 1
+    fi
+  ;;
+esac
+
+while test "$retries" != .............. ; do
+
+RUNPIKE=
+case $method in
+  Q)
+    RUNPIKE="$TMP_BUILDDIR/pike -DNOT_INSTALLED -DPRECOMPILED_SEARCH_MORE -m$TMP_BUILDDIR/master.pike $PIKEOPTS"
+  ;;
+  QQ)
+    RUNPIKE="$TMP_BUILDDIR/tpike -DNOT_INSTALLED -DPRECOMPILED_SEARCH_MORE -m$TMP_BUILDDIR/master.pike $PIKEOPTS"
+  ;;
+  QQQ)
+    RUNPIKE=$TMP_BUILDDIR/test-pike
+  ;;
+  QQQQ)
+    if test x"$OLD_RUNPIKE" != x; then
+      LAST_PIKE="$OLD_RUNPIKE"
+      method=QQQQQ
+      RUNPIKE="$OLD_RUNPIKE"
+    else
+      RUNPIKE=""
+    fi
+  ;;
+  QQQQQ)
+    LAST_PIKE=pike
+    method=QQQQQQ
+    RUNPIKE="$LAST_PIKE"
+  ;;
+  QQQQQQ)
+    RUNPIKE="$LAST_PIKE"
+    LAST_PIKE=pike
+  ;;
+  QQQQQQQ)
+   if [ "x$UNIQPATH" = "x" ] ; then 
+    UNIQPATH=""
+    ifs_save="${IFS- 	}"
+    IFS=" @PATH_SEPARATOR@"
+    for dir in $PATH; do
+     if echo "@PATH_SEPARATOR@$UNIQPATH@PATH_SEPARATOR@" | \
+        grep "@PATH_SEPARATOR@$dir@PATH_SEPARATOR@" >/dev/null; then :; else
+       if [ ":$UNIQPATH:" = "::" ]; then
+         UNIQPATH="$dir"
+       else
+         UNIQPATH="$UNIQPATH@PATH_SEPARATOR@$dir"
+       fi
+     fi
+     done
+   fi
+    for p in pike80 pike pike79 pike78 pike77 pike76 pike7
+    do
+      for dir in $UNIQPATH
+      do
+        if [ -x $dir/$p ]; then
+          if [ "x$LAST_PIKE" = xpike ] ; then
+            LAST_PIKE=$dir/$p
+            RUNPIKE="$dir/$p"
+            break
+          fi
+
+          if [ "x$LAST_PIKE" = "x$dir/$p" ]; then
+            LAST_PIKE=pike
+          fi
+        fi
+      done
+      if [ "x$RUNPIKE" != x ]; then
+        # We found a binary, so retry this method on failure.
+	method=QQQQQQ
+        break
+      fi
+    done
+    IFS="${ifs_save}"
+  ;;
+  QQQQQQQQ)
+    method=
+  ;;
+esac
+
+
+
+if test "x${RUNPIKE-}" != x ; then
+  echo "precompile: $RUNPIKE $SCRIPT $@ (method=$method)"
+
+# Do not output directly, if this generates data but the command
+# fails we have an issue. So, first output to a temporary file.
+
+  $RUNPIKE $SCRIPT "$@" >${TMPDIR-/tmp}/precompile-$$.out
+
+  if [ $? = 0 ]; then
+    cat ${TMPDIR-/tmp}/precompile-$$.out >&5
+    rm -f ${TMPDIR-/tmp}/precompile-$$.out
+    exit 0
+  fi
+  rm -f ${TMPDIR-/tmp}/precompile-$$.out
+fi
+
+method="Q$method"
+retries=".$retries"
+
+done # retry
+# Total failure
+
+echo "Failed to find a Pike executable that could run $SCRIPT."
+
+exit 1
